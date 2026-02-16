@@ -1,6 +1,7 @@
 const { findUser } = require("./users");
 
 function login(username, password) {
+  
   if (!username || !password || typeof username !== 'string' || typeof password !== 'string' || username.trim() === "") {
     return { success: false, message: "Invalid input" };
   }
@@ -8,11 +9,11 @@ function login(username, password) {
   const user = findUser(username);
 
   if (!user) {
-    return { success: false, message: "User not found" };
+    return { success: false, message: "Invalid credentials" };
   }
 
   if (user.password !== password) {
-    return { success: false, message: "Invalid password" };
+    return { success: false, message: "Invalid credentials" };
   }
 
   return {
