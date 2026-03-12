@@ -22,7 +22,7 @@ services:
       test: ["CMD", "rabbitmq-diagnostics", "check_running"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 15
 
   log-service:
     build: .
