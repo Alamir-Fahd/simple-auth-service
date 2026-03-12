@@ -3,7 +3,7 @@ const jwksClient = require('jwks-rsa');
 
 // 1. Configure the JWKS client to fetch public keys from Keycloak dynamically
 const client = jwksClient({
-  jwksUri: ${process.env.KEYCLOAK_URL}/realms/${process.env.KEYCLOAK_REALM}/protocol/openid-connect/certs
+  jwksUri: `${process.env.KEYCLOAK_URL}/realms/${process.env.KEYCLOAK_REALM}/protocol/openid-connect/certs`
 });
 
 // Helper function for jwt.verify to fetch the correct key
