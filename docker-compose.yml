@@ -1,39 +1,36 @@
 services:
-  keycloak:
-    image: quay.io/keycloak/keycloak:24.0
-    command: start-dev
+  redis:
+    image: redis:7-alpine
     ports:
-      - "8080:8080"
-    environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
+      - "6379:6379"
+    command: ["redis-server", "--maxmemory", "64mb", "--maxmemory-policy", "allkeys-lru"]
     healthcheck:
-      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/8080'"]
-      interval: 10s
-      timeout: 5s
-      retries: 15
-
-  rabbitmq:
-    image: rabbitmq:3.13-management-alpine
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
-      interval: 10s
-      timeout: 5s
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
       retries: 5
+      
+  temporal:
+    image: temporalio/auto-setup:1.24
+    ports:
+      - "7233:7233" 
+      - "8080:8080" 
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "7233"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
-  log-service:
+  loan-service:
     build: .
     ports:
       - "3000:3000"
-    depends_on:
-      keycloak:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
     environment:
-      - RABBITMQ_URL=amqp://rabbitmq:5672
-      - KEYCLOAK_URL=http://keycloak:8080
-      - KEYCLOAK_REALM=logging
+      - REDIS_URL=redis://redis:6379
+      - TEMPORAL_ADDRESS=temporal:7233
+      - PORT=3000
+    depends_on:
+      redis:
+        condition: service_healthy
+      temporal:
+        condition: service_healthy
