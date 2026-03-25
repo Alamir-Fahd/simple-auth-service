@@ -5,6 +5,8 @@ const client = createClient({
 
 client.on('error', (err) => console.error('Redis Client Error', err));
 
+client.connect().catch(console.error);
+
 async function getCached(key) {
   const data = await client.get(key);
   return data ? JSON.parse(data) : null;
